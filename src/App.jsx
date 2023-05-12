@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 function App() {
 
   const [list, setList] = useState([]);
+  const [search, setSearch] = useState('');
 
   const fetchListData = () => {
     axios
@@ -32,7 +33,7 @@ function App() {
       .then((response) => {
         const sortedArray = [...response.data.results];
 
-        sortedArray.sort((a,b) => {
+        sortedArray.sort((a, b) => {
           return a.name.localeCompare(b.name);
         })
 
@@ -45,14 +46,31 @@ function App() {
     fetchListData();
   }, []);
 
+
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value);
+  };
+
+  const filteredList = list.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <>
       <h3>desafio fernandev</h3>
       <h1>consumir api pokémon</h1>
       <hr />
-      {list.map((item) => {
-        return <Pokemon key={item.name} data={item} />
-      })}
+      <input
+        type="text"
+        value={search}
+        onChange={handleSearchChange}
+        placeholder="Pesquisar Pokémon"
+      />
+      <div className="pokemon-grid">
+        {filteredList.map((item) => (
+          <Pokemon key={item.name} data={item} />
+        ))}
+      </div>
     </>
   );
 }
@@ -70,14 +88,13 @@ const Pokemon = ({ data }) => {
     return <><div>Carregando...</div></>
   }
 
-  return <div style={{display: 'flex', alignItems:'center'}}>
-    <img
-      src={details.sprites.front_default}
-      style={{width:40, marginLeft:20}} />
-    <span>
-      <b>{details.name}</b>- EXP {details.base_experience}
-    </span>
-  </div>;
+  return <div className="pokemon-card">
+    <img src={details.sprites.front_default} alt={details.name} />
+    <div className="pokemon-info">
+      <h3>{details.name}</h3>
+      <p>EXP: {details.base_experience}</p>
+    </div>
+  </div>
 }
 
 export default App;
